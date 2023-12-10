@@ -8,7 +8,9 @@ use Dersonsena\JWTTools\JWTSignatureBehavior;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
+use yii\helpers\Url;
 use yii\rest\ActiveController;
+use yii\web\ServerErrorHttpException;
 
 class MessageController extends ActiveController
 {
@@ -25,10 +27,10 @@ class MessageController extends ActiveController
             'except' => ['login'] // it's doesn't run in login action
         ];
 
-//        $behaviors['authenticator'] = [
-//            'class' => HttpBearerAuth::class,
-//            'except' => ['login'] // it's doesn't run in login action
-//        ];
+        $behaviors['authenticator'] = [
+            'class' => HttpBearerAuth::class,
+            'except' => ['login'] // it's doesn't run in login action
+        ];
 
         return $behaviors;
     }  
@@ -41,7 +43,7 @@ class MessageController extends ActiveController
         /** @var array<string, array<string, mixed>> $actions */
         $actions = parent::actions();
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        $actions['create'] = [$this, 'actionCreate'];
+        unset($actions['create']);
         return $actions;
     }
 
@@ -63,7 +65,22 @@ class MessageController extends ActiveController
 
     public function actionCreate()
     {
+        $model = new Message();
 
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        
+        $model->from_user = Yii::$app->user->identity->id;
+         
+        if ($model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(201);
+            $id = implode(',', $model->getPrimaryKey(true));
+            $response->getHeaders()->set('Location', Url::toRoute(['view', 'id' => $id], true));
+        } elseif (!$model->hasErrors()) {
+            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
+        }
+
+        return $model;
     }
 
     public function actionUpdate()
@@ -75,7 +92,5 @@ class MessageController extends ActiveController
     {
 
     }
-
-
 
 }
