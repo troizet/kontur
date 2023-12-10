@@ -2,15 +2,46 @@
 
 namespace app\controllers;
 
-use yii\rest\Controller;
+use app\models\Message;
+use yii\data\ActiveDataProvider;
+use yii\rest\ActiveController;
 
-class MessageController extends Controller
+class MessageController extends ActiveController
 {
-    public function actionIndex()
-    {
+    public $modelClass = Message::class;
+    
+//    public function behaviors()
+//    {
+//        $behaviors = parent::behaviors();
+//        $behaviors['authenticator'] = [
+//            'class' => AccessTokenAuth::class,
+//        ];
+//
+//        return $behaviors;
+//    }
 
+    /**
+     * @inheritdoc
+     */
+    public function actions()
+    {
+        /** @var array<string, array<string, mixed>> $actions */
+        $actions = parent::actions();
+        $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
+        return $actions;
     }
 
+    /**
+     * @return ActiveDataProvider
+     */
+    public function prepareDataProvider()
+    {
+        $searchModel = new MessageSearch();
+        $dataProvider = $searchModel->search($this->request->queryParams);
+        
+        return $dataProvider;
+    }    
+    
     public function actionView()
     {
 
