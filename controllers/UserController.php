@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\LoginForm;
+use app\models\User;
 use Dersonsena\JWTTools\JWTSignatureBehavior;
 use Dersonsena\JWTTools\JWTTools;
 use Yii;
@@ -35,7 +36,12 @@ class UserController extends Controller
 
     public function actionRegister()
     {
-        
+        $model = new User();
+        $post = Yii::$app->request->post();
+        if ($model->load($post, '') && $model->save()) {
+            return ['success' => true];
+        }
+        return ['success' => false];
     }
 
     public function actionLogin()

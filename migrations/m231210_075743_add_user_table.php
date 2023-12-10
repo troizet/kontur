@@ -16,8 +16,8 @@ class m231210_075743_add_user_table extends Migration
             'id' => $this->primaryKey(),
             'username' => $this->string()->notNull(),
             'password' => $this->string()->notNull(),
-            'authKey' => $this->string(),
-            'accessToken' => $this->string(),
+//            'authKey' => $this->string(),
+//            'accessToken' => $this->string(),
         ]);
     }
 
