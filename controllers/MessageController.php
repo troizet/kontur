@@ -46,6 +46,7 @@ class MessageController extends ActiveController
         unset($actions['create']);
         unset($actions['update']);
         unset($actions['delete']);
+        unset($actions['view']);
         return $actions;
     }
 
@@ -62,7 +63,18 @@ class MessageController extends ActiveController
     
     public function actionView($id)
     {
-
+        $model = $this->findModel($id);
+        if ($model->type == 0) {
+            return $model;
+        }
+        
+        if ($model->type == 1 && Yii::$app->user->identity) {
+            return $model;
+        }
+        
+        if ($model->type == 2 && Yii::$app->user->identity && $model->to_user == Yii::$app->user->identity->id) {
+            return $model;
+        }        
     }
 
     public function actionCreate()
