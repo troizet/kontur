@@ -44,6 +44,8 @@ class MessageController extends ActiveController
         $actions = parent::actions();
         $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
         unset($actions['create']);
+        unset($actions['update']);
+        unset($actions['delete']);
         return $actions;
     }
 
@@ -58,7 +60,7 @@ class MessageController extends ActiveController
         return $dataProvider;
     }    
     
-    public function actionView()
+    public function actionView($id)
     {
 
     }
@@ -66,31 +68,64 @@ class MessageController extends ActiveController
     public function actionCreate()
     {
         $model = new Message();
-
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
-        
         $model->from_user = Yii::$app->user->identity->id;
          
         if ($model->save()) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);
-            $id = implode(',', $model->getPrimaryKey(true));
-            $response->getHeaders()->set('Location', Url::toRoute(['view', 'id' => $id], true));
+            $response->getHeaders()->set('Location', Url::toRoute(['view', 'id' => $model->id], true));
         } elseif (!$model->hasErrors()) {
-            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
+            throw new ServerErrorHttpException('Failed to create the message for unknown reason.');
         }
 
         return $model;
     }
 
-    public function actionUpdate()
+    public function actionUpdate($id)
     {
+        $model = $this->findModel($id);
 
+        if ($model->from_user === Yii::$app->user->identity->id) {
+            $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+            $model->from_user = Yii::$app->user->identity->id;
+            
+            if ($model->save() === false && !$model->hasErrors()) {
+                throw new ServerErrorHttpException('Failed to update the message for unknown reason.');
+            }
+        } else {
+            throw new \yii\web\ForbiddenHttpException('Разрешено обновлять только свои сообщения');
+        }
+
+        return $model;
     }
 
-    public function actionDelete()
+    public function actionDelete($id)
     {
+        $model = $this->findModel($id);
 
+        if ($model->from_user === Yii::$app->user->identity->id) {
+            if ($model->delete() === false) {
+                throw new ServerErrorHttpException('Failed to delete the message for unknown reason.');
+            }
+
+            Yii::$app->getResponse()->setStatusCode(204);
+        } else {
+            throw new \yii\web\ForbiddenHttpException('Разрешено удалять только свои сообщения');
+        }
+
+        return $model;
+    }
+    
+    public function findModel($id)
+    {
+        $model = Message::findOne($id);
+
+        if (isset($model)) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException("Message not found: $id");
     }
 
 }
