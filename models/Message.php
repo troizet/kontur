@@ -10,6 +10,10 @@ use yii\web\Linkable;
 
 class Message extends ActiveRecord implements Linkable
 {
+    public const VISIBLE_TO_ALL = 0;
+    public const VISIBLE_TO_REGISTERED_USERS = 1;
+    public const VISIBLE_TO_SPECIFIC_USERS = 2;
+
     /**
      * message
      * type: 1 - all, 2 - only registered user, 3 - with specify user
@@ -18,12 +22,12 @@ class Message extends ActiveRecord implements Linkable
      * created_at
      * updated_at
      */
-    
+
     public static function tableName(): string {
         return 'messages';
     }
 
-    
+
     public function behaviors()
     {
         return [
@@ -52,7 +56,7 @@ class Message extends ActiveRecord implements Linkable
           [['from_user'], 'default', 'value' => 1]
         ];
     }
-    
+
     public function attributes() {
         return [
             'id',
@@ -78,16 +82,16 @@ class Message extends ActiveRecord implements Linkable
         return [
             Link::REL_SELF => Url::to(['message/view', 'id' => $this->id], true),
         ];
-    }    
-    
+    }
+
     public function getChildMessage()
     {
-        
+
     }
-    
+
     public function getParentMessge()
     {
-        
+
     }
 
 }

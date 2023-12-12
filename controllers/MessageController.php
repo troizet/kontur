@@ -10,13 +10,15 @@ use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
 use yii\helpers\Url;
 use yii\rest\ActiveController;
+use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
 class MessageController extends ActiveController
 {
     public $modelClass = Message::class;
-    
-    
+
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -33,8 +35,8 @@ class MessageController extends ActiveController
         ];
 
         return $behaviors;
-    }  
-    
+    }
+
     /**
      * @inheritdoc
      */
@@ -57,24 +59,34 @@ class MessageController extends ActiveController
     {
         $searchModel = new MessageSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
-        
+
         return $dataProvider;
-    }    
-    
+    }
+
     public function actionView($id)
     {
-        $model = $this->findModel($id);
-        if ($model->type == 0) {
-            return $model;
-        }
-        
-        if ($model->type == 1 && Yii::$app->user->identity) {
-            return $model;
-        }
-        
-        if ($model->type == 2 && Yii::$app->user->identity && $model->to_user == Yii::$app->user->identity->id) {
-            return $model;
-        }        
+//        SELECT
+//                *
+//        FROM
+//                `messages`
+//        WHERE
+//                id = 3 and
+//                (type = 0
+//                        or type = 1 
+//                        or ((type = 2 and to_user = 1) or (type = 2 and from_user = 1)))
+        $query = Message::find()
+                ->where(['id' => $id])
+                ->andWhere(['type' => Message::VISIBLE_TO_ALL]);
+
+//        if (Yii::$app->user->identity) {
+//            $query->orWhere(['type' => Message::VISIBLE_TO_REGISTERED_USERS])
+//                ->orWhere(['type' => Message::VISIBLE_TO_SPECIFIC_USERS, 'to_user' => Yii::$app->user->identity->id] )
+//                ->orWhere(['type' => Message::VISIBLE_TO_SPECIFIC_USERS, 'from_user' => Yii::$app->user->identity->id] );
+//        }
+
+        $message = $query->one();
+
+        return $message;
     }
 
     public function actionCreate()
@@ -82,7 +94,7 @@ class MessageController extends ActiveController
         $model = new Message();
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
         $model->from_user = Yii::$app->user->identity->id;
-         
+
         if ($model->save()) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);
@@ -101,12 +113,12 @@ class MessageController extends ActiveController
         if ($model->from_user === Yii::$app->user->identity->id) {
             $model->load(Yii::$app->getRequest()->getBodyParams(), '');
             $model->from_user = Yii::$app->user->identity->id;
-            
+
             if ($model->save() === false && !$model->hasErrors()) {
                 throw new ServerErrorHttpException('Failed to update the message for unknown reason.');
             }
         } else {
-            throw new \yii\web\ForbiddenHttpException('Разрешено обновлять только свои сообщения');
+            throw new ForbiddenHttpException('Разрешено обновлять только свои сообщения');
         }
 
         return $model;
@@ -116,6 +128,8 @@ class MessageController extends ActiveController
     {
         $model = $this->findModel($id);
 
+        //добавить проверку на существование ответа, если есть, то просто очищаем текст
+        //Добавить мягкое удаление?
         if ($model->from_user === Yii::$app->user->identity->id) {
             if ($model->delete() === false) {
                 throw new ServerErrorHttpException('Failed to delete the message for unknown reason.');
@@ -123,12 +137,12 @@ class MessageController extends ActiveController
 
             Yii::$app->getResponse()->setStatusCode(204);
         } else {
-            throw new \yii\web\ForbiddenHttpException('Разрешено удалять только свои сообщения');
+            throw new ForbiddenHttpException('Разрешено удалять только свои сообщения');
         }
 
         return $model;
     }
-    
+
     public function findModel($id)
     {
         $model = Message::findOne($id);
