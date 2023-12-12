@@ -15,7 +15,7 @@ use yii\rest\Controller;
  */
 class UserController extends Controller
 {
-    
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
@@ -32,9 +32,17 @@ class UserController extends Controller
         ];
 
         return $behaviors;
-    }    
+    }
 
-    public function actionRegister()
+    protected function verbs()
+    {
+        return [
+            'register'  => ['POST'],
+            'login'  => ['POST'],
+        ];
+    }
+
+        public function actionRegister()
     {
         $model = new User();
         $post = Yii::$app->request->post();
@@ -49,10 +57,10 @@ class UserController extends Controller
         $model = new LoginForm();
         $post = Yii::$app->request->post();
         if ($model->load($post, '') && $model->login()) {
-        
+
             $user = $model->getUser();
 
-            if ($user) {   
+            if ($user) {
                 $token = JWTTools::build(Yii::$app->params['jwt']['secret'])
                     ->withModel($user, ['id', 'username'])
                     ->getJWT();
@@ -60,12 +68,7 @@ class UserController extends Controller
                 return ['success' => true, 'token' => $token];
             }
         }
-        
-        return ['success' => false];
-    }    
-            
-    public function actionLogout()
-    {
 
+        return ['success' => false];
     }
 }
