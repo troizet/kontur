@@ -49,9 +49,9 @@ class MessageController extends Controller
         $messages = [];
 
         if (Yii::$app->user->identity) {
-            $messages = Message::findAllForUserQuery(Yii::$app->user->identity->id);
+            $messages = Message::findForUserQuery(Yii::$app->user->identity->id);
         } else {
-            $messages = Message::findAllMessagesQuery();
+            $messages = Message::findMessagesQuery();
         }
 
         $provider = new ActiveDataProvider([
