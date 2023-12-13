@@ -14,15 +14,6 @@ class Message extends ActiveRecord implements Linkable
     public const VISIBLE_TO_REGISTERED_USERS = 1;
     public const VISIBLE_TO_SPECIFIC_USERS = 2;
 
-    /**
-     * message
-     * type: 1 - all, 2 - only registered user, 3 - with specify user
-     * from_user
-     * to_user
-     * created_at
-     * updated_at
-     */
-
     public static function tableName(): string {
         return 'messages';
     }
@@ -92,6 +83,47 @@ class Message extends ActiveRecord implements Linkable
     public function getParentMessge()
     {
 
+    }
+
+    public function findOneById($id)
+    {
+        return static::getQuery()->andWhere(['id' => $id])->one();
+    }
+
+    public function findOneByIdForUser($id, $userId)
+    {
+        return static::getQuery($userId)->andWhere(['id' => $id])->one();
+    }
+
+    public function findAllMessages()
+    {
+        return static::getQuery()->all();
+    }
+
+    public function findAllByIdForUser( $userId)
+    {
+        return static::getQuery($userId)->all();
+    }
+
+    private function getQuery($userId = null)
+    {
+        if ($userId) {
+            return static::find()
+            ->where(['or',
+                ['type' => Message::VISIBLE_TO_ALL],
+                ['type' => Message::VISIBLE_TO_REGISTERED_USERS],
+                ['and',
+                    ['type' => Message::VISIBLE_TO_SPECIFIC_USERS],
+                    ['or',
+                        ['to_user' => $userId],
+                        ['from_user' => $userId]
+                    ]
+                ]
+            ]);
+        } else {
+            return static::find()
+            ->where(['type' => Message::VISIBLE_TO_ALL]);
+        }
     }
 
 }

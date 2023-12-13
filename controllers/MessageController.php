@@ -3,21 +3,18 @@
 namespace app\controllers;
 
 use app\models\Message;
-use app\models\MessageSearch;
 use Dersonsena\JWTTools\JWTSignatureBehavior;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
 use yii\helpers\Url;
-use yii\rest\ActiveController;
+use yii\rest\Controller;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;
 
-class MessageController extends ActiveController
+class MessageController extends Controller
 {
-    public $modelClass = Message::class;
-
 
     public function behaviors()
     {
@@ -38,54 +35,29 @@ class MessageController extends ActiveController
     }
 
     /**
-     * @inheritdoc
-     */
-    public function actions()
-    {
-        /** @var array<string, array<string, mixed>> $actions */
-        $actions = parent::actions();
-        $actions['index']['prepareDataProvider'] = [$this, 'prepareDataProvider'];
-        unset($actions['create']);
-        unset($actions['update']);
-        unset($actions['delete']);
-        unset($actions['view']);
-        return $actions;
-    }
-
-    /**
      * @return ActiveDataProvider
      */
-    public function prepareDataProvider()
+    public function actionIndex()
     {
-        $searchModel = new MessageSearch();
-        $dataProvider = $searchModel->search($this->request->queryParams);
+        $messages = [];
 
-        return $dataProvider;
+        if (Yii::$app->user->identity) {
+            $messages = Message::findAllByIdForUser(Yii::$app->user->identity->id);
+        } else {
+            $messages = Message::findAllMessages();
+        }
+        return $messages;
     }
 
     public function actionView($id)
     {
-//        SELECT
-//                *
-//        FROM
-//                `messages`
-//        WHERE
-//                id = 3 and
-//                (type = 0
-//                        or type = 1 
-//                        or ((type = 2 and to_user = 1) or (type = 2 and from_user = 1)))
-        $query = Message::find()
-                ->where(['id' => $id])
-                ->andWhere(['type' => Message::VISIBLE_TO_ALL]);
+        $message = null;
 
-//        if (Yii::$app->user->identity) {
-//            $query->orWhere(['type' => Message::VISIBLE_TO_REGISTERED_USERS])
-//                ->orWhere(['type' => Message::VISIBLE_TO_SPECIFIC_USERS, 'to_user' => Yii::$app->user->identity->id] )
-//                ->orWhere(['type' => Message::VISIBLE_TO_SPECIFIC_USERS, 'from_user' => Yii::$app->user->identity->id] );
-//        }
-
-        $message = $query->one();
-
+        if (Yii::$app->user->identity) {
+            $message = Message::findOneByIdForUser($id, Yii::$app->user->identity->id);
+        } else {
+            $message = Message::findOneById($id);
+        }
         return $message;
     }
 
