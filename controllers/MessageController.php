@@ -32,6 +32,17 @@ class MessageController extends Controller
         return $behaviors;
     }
 
+    protected function verbs()
+    {
+        return [
+            'index'  => ['GET', 'HEAD'],
+            'view'  => ['GET', 'HEAD'],
+            'update'  => ['PUT', 'PATCH'],
+            'create'  => ['POST'],
+            'delete'  => ['DELETE']
+        ];
+    }
+
     public function actionIndex()
     {
         $messages = [];
