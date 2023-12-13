@@ -44,7 +44,9 @@ class Message extends ActiveRecord implements Linkable
             ],
             'safe'
           ],
-          [['from_user'], 'default', 'value' => 1]
+          [['parent_id'], 'exist', 'targetAttribute' => 'id'],
+          [['from_user'], 'exist', 'targetClass' => User::class, 'targetAttribute' => 'id'],
+          [['to_user'], 'exist', 'targetClass' => User::class, 'targetAttribute' => 'id'],
         ];
     }
 
@@ -62,7 +64,11 @@ class Message extends ActiveRecord implements Linkable
     }
 
     public function extraFields() {
-        return parent::extraFields();
+        return [
+          'answers' => function() {
+            return $this->childMessage;
+          }
+        ];
     }
 
     /**
@@ -77,12 +83,12 @@ class Message extends ActiveRecord implements Linkable
 
     public function getChildMessage()
     {
-
+        return $this->hasMany(static::class, ['parent_id' => 'id']);
     }
 
-    public function getParentMessge()
+    public function getParentMessage()
     {
-
+        return $this->hasOne(static::class, ['id' => 'parnet_id']);
     }
 
     public function findOneById($id)
