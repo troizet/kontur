@@ -17,8 +17,7 @@ paths:
       description: 'Регистрация нового пользователя'
       operationId: 'registerUser'
       security:
-        - accessQueryToken: []
-        - accessHeaderToken: []
+        - accessBearerToken: []
       requestBody:
         content:
           application/json:
@@ -53,8 +52,7 @@ paths:
       description: 'Авторизация пользователя'
       operationId: 'loginUser'
       security:
-        - accessQueryToken: []
-        - accessHeaderToken: []
+        - accessBearerToken: []
       requestBody:
         content:
           application/json:
@@ -93,8 +91,7 @@ paths:
       description: 'Получение списка сообщений'
       operationId: 'getMessages'
       security:
-        - accessQueryToken: []
-        - accessHeaderToken: []
+        - accessBearerToken: []
       parameters:
         - name: page
           in: query
@@ -128,8 +125,7 @@ paths:
       description: 'Добавление сообщения'
       operationId: 'createMessage'
       security:
-        - accessQueryToken: []
-        - accessHeaderToken: []
+        - accessBearerToken: []
       requestBody:
         content:
           application/json:
@@ -174,8 +170,7 @@ paths:
       description: 'Обновление сообщения'
       operationId: 'updateMessage'
       security:
-        - accessQueryToken: []
-        - accessHeaderToken: []
+        - accessBearerToken: []
       requestBody:
         content:
           application/json:
@@ -201,8 +196,7 @@ paths:
       description: 'Получение сообщения по его идентификатору'
       operationId: 'getMessage'
       security:
-        - accessQueryToken: []
-        - accessHeaderToken: []
+        - accessBearerToken: []
       parameters:
         - name: id
           required: true
@@ -230,8 +224,7 @@ paths:
       description: 'Удаление сообщения по его идентификатору'
       operationId: 'deleteMessage'
       security:
-        - accessQueryToken: []
-        - accessHeaderToken: []
+        - accessBearerToken: []
       parameters:
         - name: id
           required: true
@@ -244,14 +237,10 @@ paths:
           description: 'No content'
 components:
   securitySchemes:
-    accessQueryToken:
-      type: apiKey
-      in: query
-      name: access-token
-    accessHeaderToken:
-      type: apiKey
-      in: header
-      name: Access-Token
+    accessBearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     message:
       type: object
