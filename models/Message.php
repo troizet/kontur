@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\helpers\Url;
@@ -79,7 +80,11 @@ class Message extends ActiveRecord implements Linkable
     public function extraFields() {
         return [
           'answers' => function() {
-            return $this->childMessage;
+            if (Yii::$app->user->identity) {
+                return $this->getQuery(Yii::$app->user->identity->id)->andWhere(['parent_id' => $this->id])->all();
+            } else {
+                return $this->getQuery()->andWhere(['parent_id' => $this->id])->all();
+            }
           }
         ];
     }
