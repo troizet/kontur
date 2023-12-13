@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\components\JWTSignatureBehavior;
 use app\models\Message;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
 use yii\helpers\Url;
 use yii\rest\Controller;
@@ -48,11 +49,16 @@ class MessageController extends Controller
         $messages = [];
 
         if (Yii::$app->user->identity) {
-            $messages = Message::findAllForUser(Yii::$app->user->identity->id);
+            $messages = Message::findAllForUserQuery(Yii::$app->user->identity->id);
         } else {
-            $messages = Message::findAllMessages();
+            $messages = Message::findAllMessagesQuery();
         }
-        return $messages;
+
+        $provider = new ActiveDataProvider([
+            'query' => $messages
+        ]);
+
+        return $provider;
     }
 
     public function actionView($id)

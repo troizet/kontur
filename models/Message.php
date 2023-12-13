@@ -121,12 +121,22 @@ class Message extends ActiveRecord implements Linkable
 
     public function findAllMessages()
     {
-        return static::getQuery()->all();
+        return static::findAllMessagesQuery()->all();
     }
 
     public function findAllForUser($userId)
     {
-        return static::getQuery($userId)->all();
+        return static::findAllForUserQuery($userId)->all();
+    }
+
+    public function findAllMessagesQuery()
+    {
+        return static::getQuery();
+    }
+
+    public function findAllForUserQuery($userId)
+    {
+        return static::getQuery($userId);
     }
 
     private function getQuery($userId = null)
