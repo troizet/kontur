@@ -2,8 +2,8 @@
 
 namespace app\controllers;
 
+use app\components\JWTSignatureBehavior;
 use app\models\Message;
-use Dersonsena\JWTTools\JWTSignatureBehavior;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
@@ -23,12 +23,11 @@ class MessageController extends Controller
         $behaviors['jwtValidator'] = [
             'class' => JWTSignatureBehavior::class,
             'secretKey' => Yii::$app->params['jwt']['secret'],
-            'except' => ['login'] // it's doesn't run in login action
         ];
 
         $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::class,
-            'except' => ['login'] // it's doesn't run in login action
+            'optional' => ['index', 'view']
         ];
 
         return $behaviors;
