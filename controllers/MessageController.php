@@ -62,7 +62,6 @@ class MessageController extends Controller
         $model->scenario = Message::SCENARIO_CREATE;
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
         $model->from_user = Yii::$app->user->identity->id;
-        //добавить проверку на существование пользователя to_userы
         if ($model->save()) {
             $response = Yii::$app->getResponse();
             $response->setStatusCode(201);

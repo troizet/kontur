@@ -8,16 +8,16 @@ use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
 class User extends ActiveRecord implements IdentityInterface
-{    
+{
     public static function tableName(): string {
         return "users";
     }
-    
+
     public function rules(): array {
         return [
-          [['username', 'password'], 'required'],  
-          [['username', 'password'], 'string'],  
-          [['username', 'password'], 'safe'],  
+          [['username', 'password'], 'required'],
+          [['username', 'password'], 'string'],
+          [['username', 'password'], 'safe'],
         ];
     }
 
@@ -48,7 +48,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findByUsername($username)
     {
-        return static::find()->where(['username' => $username])->one();     
+        return static::find()->where(['username' => $username])->one();
     }
 
     /**
@@ -83,6 +83,14 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+        return Yii::$app->getSecurity()->validatePassword($password, $this->password);
+    }
+
+    public function beforeSave($insert)
+    {
+        parent::beforeSave($insert);
+
+        $this->password = Yii::$app->getSecurity()->generatePasswordHash($this->password);
+        return true;
     }
 }

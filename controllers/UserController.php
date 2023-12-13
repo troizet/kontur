@@ -4,32 +4,12 @@ namespace app\controllers;
 
 use app\models\LoginForm;
 use app\models\User;
-use Dersonsena\JWTTools\JWTSignatureBehavior;
 use Dersonsena\JWTTools\JWTTools;
 use Yii;
-use yii\filters\auth\HttpBearerAuth;
 use yii\rest\Controller;
 
 class UserController extends Controller
 {
-
-    public function behaviors()
-    {
-        $behaviors = parent::behaviors();
-
-        $behaviors['jwtValidator'] = [
-            'class' => JWTSignatureBehavior::class,
-            'secretKey' => Yii::$app->params['jwt']['secret'],
-            'except' => ['login']
-        ];
-
-        $behaviors['authenticator'] = [
-            'class' => HttpBearerAuth::class,
-            'except' => ['login']
-        ];
-
-        return $behaviors;
-    }
 
     protected function verbs()
     {
