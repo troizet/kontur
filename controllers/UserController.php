@@ -10,9 +10,6 @@ use Yii;
 use yii\filters\auth\HttpBearerAuth;
 use yii\rest\Controller;
 
-/**
- * Делаем простую Basic авторизацию или jwt?
- */
 class UserController extends Controller
 {
 
@@ -23,12 +20,12 @@ class UserController extends Controller
         $behaviors['jwtValidator'] = [
             'class' => JWTSignatureBehavior::class,
             'secretKey' => Yii::$app->params['jwt']['secret'],
-            'except' => ['login'] // it's doesn't run in login action
+            'except' => ['login']
         ];
 
         $behaviors['authenticator'] = [
             'class' => HttpBearerAuth::class,
-            'except' => ['login'] // it's doesn't run in login action
+            'except' => ['login']
         ];
 
         return $behaviors;
@@ -42,7 +39,7 @@ class UserController extends Controller
         ];
     }
 
-        public function actionRegister()
+    public function actionRegister()
     {
         $model = new User();
         $post = Yii::$app->request->post();

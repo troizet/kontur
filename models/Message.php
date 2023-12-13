@@ -14,6 +14,15 @@ class Message extends ActiveRecord implements Linkable
     public const VISIBLE_TO_REGISTERED_USERS = 1;
     public const VISIBLE_TO_SPECIFIC_USERS = 2;
 
+    public const SCENARIO_UPDATE = 'update';
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $scenarios[self::SCENARIO_UPDATE] = ['message'];
+        return $scenarios;
+    }
+
     public static function tableName(): string {
         return 'messages';
     }

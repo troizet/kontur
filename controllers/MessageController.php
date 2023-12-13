@@ -33,9 +33,6 @@ class MessageController extends Controller
         return $behaviors;
     }
 
-    /**
-     * @return ActiveDataProvider
-     */
     public function actionIndex()
     {
         $messages = [];
@@ -80,6 +77,7 @@ class MessageController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $model->scenario = Message::SCENARIO_UPDATE;
 
         if ($model->from_user === Yii::$app->user->identity->id) {
             $model->load(Yii::$app->getRequest()->getBodyParams(), '');
@@ -99,17 +97,18 @@ class MessageController extends Controller
     {
         $model = $this->findModel($id);
 
-        //добавить проверку на существование ответа, если есть, то просто очищаем текст
-        //Добавить мягкое удаление?
-        if ($model->from_user === Yii::$app->user->identity->id) {
-            if ($model->delete() === false) {
-                throw new ServerErrorHttpException('Failed to delete the message for unknown reason.');
-            }
-
-            Yii::$app->getResponse()->setStatusCode(204);
-        } else {
+        if ($model->from_user != Yii::$app->user->identity->id) {
             throw new ForbiddenHttpException('Разрешено удалять только свои сообщения');
         }
+        if ($model->childMessage) {
+            throw new ForbiddenHttpException('У сообщения имеются ответы');
+        }
+
+        if ($model->delete() === false) {
+            throw new ServerErrorHttpException('Failed to delete the message for unknown reason.');
+        }
+
+        Yii::$app->getResponse()->setStatusCode(204);
 
         return $model;
     }
