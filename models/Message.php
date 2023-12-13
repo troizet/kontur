@@ -15,6 +15,7 @@ class Message extends ActiveRecord implements Linkable
     public const VISIBLE_TO_SPECIFIC_USERS = 2;
 
     public const SCENARIO_UPDATE = 'update';
+    public const SCENARIO_CREATE = 'create';
 
     public function scenarios()
     {
@@ -42,6 +43,9 @@ class Message extends ActiveRecord implements Linkable
     public function rules(): array {
         return [
           [['message', 'type'], 'required'],
+          [['to_user'], 'required', 'on' => self::SCENARIO_CREATE, 'when' => function() {
+            return $this->type == 2;
+          }],
           [
             [
                 'parent_id',
@@ -115,7 +119,7 @@ class Message extends ActiveRecord implements Linkable
         return static::getQuery()->all();
     }
 
-    public function findAllByIdForUser( $userId)
+    public function findAllForUser($userId)
     {
         return static::getQuery($userId)->all();
     }

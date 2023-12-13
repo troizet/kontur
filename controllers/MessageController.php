@@ -5,7 +5,6 @@ namespace app\controllers;
 use app\components\JWTSignatureBehavior;
 use app\models\Message;
 use Yii;
-use yii\data\ActiveDataProvider;
 use yii\filters\auth\HttpBearerAuth;
 use yii\helpers\Url;
 use yii\rest\Controller;
@@ -38,7 +37,7 @@ class MessageController extends Controller
         $messages = [];
 
         if (Yii::$app->user->identity) {
-            $messages = Message::findAllByIdForUser(Yii::$app->user->identity->id);
+            $messages = Message::findAllForUser(Yii::$app->user->identity->id);
         } else {
             $messages = Message::findAllMessages();
         }
@@ -60,6 +59,7 @@ class MessageController extends Controller
     public function actionCreate()
     {
         $model = new Message();
+        $model->scenario = Message::SCENARIO_CREATE;
         $model->load(Yii::$app->getRequest()->getBodyParams(), '');
         $model->from_user = Yii::$app->user->identity->id;
         //добавить проверку на существование пользователя to_userы
