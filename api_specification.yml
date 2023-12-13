@@ -139,30 +139,30 @@ paths:
                 parent_id:
                   type: integer
                   description: 'идентификатор родительского сообщения'
-                  example: 1  
+                  example: 1
                 message:
                   type: string
                   description: 'тескт сообщения'
-                  example: 'тескт сообщения'    
+                  example: 'тескт сообщения'
                 type:
                   type: integer
                   description: 'тип сообщения сообщения: 0 - видимое всем, 1 - видимое только зарегистрированным пользователям, 2 - видимое конкретным пользователям'
-                  example: 1  
+                  example: 1
                 from_user:
                   type: integer
                   description: 'идентификатор пользователя автора сообщения'
-                  example: 1  
+                  example: 1
                 to_user:
                   type: integer
                   description: 'идентификатор пользователя, которому предназначено сообщение'
-                  example: 2     
+                  example: 2
       responses:
         '200':
           description: Succefull response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/message'     
+                $ref: '#/components/schemas/message'
     put:
       tags:
         - 'messages'
@@ -180,14 +180,14 @@ paths:
                 message:
                   type: string
                   description: 'текст сообщения'
-                  example: 'текст сообщения'    
+                  example: 'текст сообщения'
       responses:
         '200':
           description: Succefull response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/message'                   
+                $ref: '#/components/schemas/message'
   /messages/{id}:
     get:
       tags:
@@ -203,7 +203,7 @@ paths:
           in: path
           description: 'Идентификатор сообщения'
           schema:
-            type: integer      
+            type: integer
         - name: expand
           in: query
           description: 'отобразить ответы на сообщение'
@@ -231,7 +231,7 @@ paths:
           in: path
           description: 'Идентификатор сообщения'
           schema:
-            type: integer      
+            type: integer
       responses:
         '204':
           description: 'No content'
@@ -252,27 +252,27 @@ components:
         parent_id:
           type: integer
           description: 'идентификатор родительского сообщения'
-          example: 1  
+          example: 1
         message:
           type: string
           description: 'тескт сообщения'
-          example: 'тескт сообщения'    
+          example: 'тескт сообщения'
         type:
           type: integer
           description: 'тип сообщения сообщения: 0 - видимое всем, 1 - видимое только зарегистрированным пользователям, 2 - видимое конкретным пользователям'
-          example: 1  
+          example: 1
         from_user:
           type: integer
           description: 'идентификатор пользователя автора сообщения'
-          example: 1  
+          example: 1
         to_user:
           type: integer
           description: 'идентификатор пользователя, которому предназначено сообщение'
-          example: 2     
+          example: 2
         created_at:
           type: integer
           description: 'дата создания сообщения'
-          example: 1702367936  
+          example: 1702367936
         updated_at:
           type: integer
           description: 'дата обновления сообщения'
