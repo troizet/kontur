@@ -1,0 +1,310 @@
+openapi: 3.0.0
+info:
+  title: api messages
+  version: 1.0.0
+  description: Api для работы с сообщениями
+  contact:
+    name: 'Борохвостов Алексей'
+    email: 'troizet@gmail.com'
+servers:
+  - url: 'https://localhost:8888'
+paths:
+  /user/register:
+    post:
+      tags:
+        - 'user'
+      summary: 'Регистрация нового пользователя'
+      description: 'Регистрация нового пользователя'
+      operationId: 'registerUser'
+      security:
+        - accessQueryToken: []
+        - accessHeaderToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: 'Логин пользователя'
+                  example: username
+                password:
+                  type: string
+                  description: 'Пароль пользователя'
+                  example: password
+      responses:
+        '200':
+          description: 'Успешность регистрации пользователя'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: 'Успешность регистрации пользователя'
+                    example: true
+  /user/login:
+    post:
+      tags:
+        - 'user'
+      summary: 'Авторизация пользователя'
+      description: 'Авторизация пользователя'
+      operationId: 'loginUser'
+      security:
+        - accessQueryToken: []
+        - accessHeaderToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: 'Логин пользователя'
+                  example: username
+                password:
+                  type: string
+                  description: 'Пароль пользователя'
+                  example: password
+      responses:
+        '200':
+          description: 'Успешность авторизации пользователя'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: 'Успешность авторизации пользователя'
+                    example: true
+                  token:
+                    type: string
+                    description: 'jwt токен пользователя'
+                    example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6M30.eyJzdWIiOjMsImlzcyI6IiIsImF1ZCI6IiIsImlhdCI6MTcwMjQ0ODMxMSwiZXhwIjoxNzAyNDUxOTExLCJqdGkiOiJmMjRlZjUxOTM1MDExZjIiLCJpZCI6MywidXNlcm5hbWUiOiJ0ZXN0MiJ9.3wM8Lo0_W285_pbaOEkTSN2RqFBxm9W9387bmZFY"
+  /messages:
+    get:
+      tags:
+        - 'messages'
+      summary: 'Получение списка сообщений'
+      description: 'Получение списка сообщений'
+      operationId: 'getMessages'
+      security:
+        - accessQueryToken: []
+        - accessHeaderToken: []
+      parameters:
+        - name: page
+          in: query
+          description: 'страница'
+          schema:
+            type: integer
+        - name: per-page
+          in: query
+          description: 'количество сообщений на страницу'
+          schema:
+            type: integer
+        - name: expand
+          in: query
+          description: 'отобразить ответы на сообщения'
+          schema:
+            type: string
+            example: answer
+      responses:
+        '200':
+          description: Succefull response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/message'
+    post:
+      tags:
+        - 'messages'
+      summary: 'Добавление сообщения'
+      description: 'Добавление сообщения'
+      operationId: 'createMessage'
+      security:
+        - accessQueryToken: []
+        - accessHeaderToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 'идентификатор сообщения'
+                  example: 10
+                parent_id:
+                  type: integer
+                  description: 'идентификатор родительского сообщения'
+                  example: 1  
+                message:
+                  type: string
+                  description: 'тескт сообщения'
+                  example: 'тескт сообщения'    
+                type:
+                  type: integer
+                  description: 'тип сообщения сообщения: 0 - видимое всем, 1 - видимое только зарегистрированным пользователям, 2 - видимое конкретным пользователям'
+                  example: 1  
+                from_user:
+                  type: integer
+                  description: 'идентификатор пользователя автора сообщения'
+                  example: 1  
+                to_user:
+                  type: integer
+                  description: 'идентификатор пользователя, которому предназначено сообщение'
+                  example: 2     
+      responses:
+        '200':
+          description: Succefull response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/message'     
+    put:
+      tags:
+        - 'messages'
+      summary: 'Обновление сообщения'
+      description: 'Обновление сообщения'
+      operationId: 'updateMessage'
+      security:
+        - accessQueryToken: []
+        - accessHeaderToken: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: 'текст сообщения'
+                  example: 'текст сообщения'    
+      responses:
+        '200':
+          description: Succefull response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/message'                   
+  /messages/{id}:
+    get:
+      tags:
+        - 'messages'
+      summary: 'Получение сообщения по его идентификатору'
+      description: 'Получение сообщения по его идентификатору'
+      operationId: 'getMessage'
+      security:
+        - accessQueryToken: []
+        - accessHeaderToken: []
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: 'Идентификатор сообщения'
+          schema:
+            type: integer      
+        - name: expand
+          in: query
+          description: 'отобразить ответы на сообщение'
+          schema:
+            type: string
+            example: answer
+      responses:
+        '200':
+          description: Succefull response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/message'
+    delete:
+      tags:
+        - 'messages'
+      summary: 'Удаление сообщения по его идентификатору'
+      description: 'Удаление сообщения по его идентификатору'
+      operationId: 'deleteMessage'
+      security:
+        - accessQueryToken: []
+        - accessHeaderToken: []
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: 'Идентификатор сообщения'
+          schema:
+            type: integer      
+      responses:
+        '204':
+          description: 'No content'
+components:
+  securitySchemes:
+    accessQueryToken:
+      type: apiKey
+      in: query
+      name: access-token
+    accessHeaderToken:
+      type: apiKey
+      in: header
+      name: Access-Token
+  schemas:
+    message:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 'идентификатор сообщения'
+          example: 10
+        parent_id:
+          type: integer
+          description: 'идентификатор родительского сообщения'
+          example: 1  
+        message:
+          type: string
+          description: 'тескт сообщения'
+          example: 'тескт сообщения'    
+        type:
+          type: integer
+          description: 'тип сообщения сообщения: 0 - видимое всем, 1 - видимое только зарегистрированным пользователям, 2 - видимое конкретным пользователям'
+          example: 1  
+        from_user:
+          type: integer
+          description: 'идентификатор пользователя автора сообщения'
+          example: 1  
+        to_user:
+          type: integer
+          description: 'идентификатор пользователя, которому предназначено сообщение'
+          example: 2     
+        created_at:
+          type: integer
+          description: 'дата создания сообщения'
+          example: 1702367936  
+        updated_at:
+          type: integer
+          description: 'дата обновления сообщения'
+          example: 1702441379
+        answers:
+          type: array
+          description: 'ответы на сообщение'
+          items:
+            $ref: '#/components/schemas/message'
+        links:
+          $ref: '#/components/schemas/links'
+    links:
+      type: object
+      properties:
+        self:
+          type: object
+          properties:
+            href:
+              type: string
+              description: 'ссылка на сообщение'
+              example: "http://localhost:8888/messages/10"
+
+
+
